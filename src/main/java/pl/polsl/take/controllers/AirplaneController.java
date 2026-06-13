@@ -46,6 +46,10 @@ public class AirplaneController {
         if (!airplaneRepository.existsById(id)) {
             throw new RuntimeException("Błąd: Samolot o podanym ID nie istnieje.");
         }
+        // BŁYSKAWICZNE SPRAWDZENIE W BAZIE (Bez pobierania list do pamięci RAM)
+        if (flightRepository.existsByAirplaneId(id)) {
+            throw new IllegalStateException("Konflikt: Nie można usunąć samolotu, ponieważ bierze on udział w zaplanowanych lotach.");
+        }
         airplaneRepository.deleteById(id);
     }
 }
