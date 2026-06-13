@@ -4,6 +4,7 @@ import java.util.List;
 
 import jakarta.persistence.*;
 import lombok.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 
 @Entity
@@ -31,9 +32,11 @@ public class Airport {
 	private String city;
 	
 	@OneToMany(mappedBy = "departureAirport")
+	@JsonIgnore
 	private List<Flight> departingFlights;
 
 	@OneToMany(mappedBy = "arrivalAirport")
+	@JsonIgnore
 	private List<Flight> arrivingFlights;
 }
 
