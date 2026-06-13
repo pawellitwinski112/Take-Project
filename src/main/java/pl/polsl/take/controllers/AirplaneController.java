@@ -3,15 +3,18 @@ package pl.polsl.take.controllers;
 import org.springframework.web.bind.annotation.*;
 import pl.polsl.take.entities.Airplane;
 import pl.polsl.take.repositories.AirplaneRepository;
+import pl.polsl.take.repositories.FlightRepository;
 
 @RestController
 @RequestMapping("/airplanes")
 public class AirplaneController {
 
     private final AirplaneRepository airplaneRepository;
+    private final FlightRepository flightRepository;
 
-    public AirplaneController(AirplaneRepository airplaneRepository) {
+    public AirplaneController(AirplaneRepository airplaneRepository, FlightRepository flightRepository) {
         this.airplaneRepository = airplaneRepository;
+        this.flightRepository = flightRepository;
     }
 
     @PostMapping
