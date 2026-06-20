@@ -45,6 +45,6 @@ public class Flight {
 	@Getter @Setter
 	private Airline airline;
 	
-	@OneToMany(mappedBy = "flight")
+	@OneToMany(mappedBy = "flight", cascade = CascadeType.REMOVE, orphanRemoval = true)
 	private List<BoardingPass> boardingPasses;
 }
