@@ -1,7 +1,10 @@
 package pl.polsl.take.controllers;
 
+import java.util.List;
+
 import org.springframework.web.bind.annotation.*;
 import pl.polsl.take.entities.Passenger;
+import pl.polsl.take.entities.PassengerManifestDto;
 import pl.polsl.take.repositories.PassengerRepository;
 
 @RestController
@@ -68,5 +71,10 @@ public class PassengerController {
       
         // Jeśli jest czysto - usuwamy
         passengerRepository.delete(passenger);
+    }
+    
+    @GetMapping("/manifest/{flightId}")
+    public List<PassengerManifestDto> getPassengerManifest(@PathVariable Long flightId){
+    	return passengerRepository.findPassengerManifestByFlightId(flightId);
     }
 }

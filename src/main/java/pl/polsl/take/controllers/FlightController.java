@@ -61,4 +61,17 @@ public class FlightController {
         }
         flightRepository.deleteById(id);
     }
+    
+    @PutMapping("/delay")
+    public String delayFlights(@RequestParam Long airportId, @RequestParam Integer minutes) {
+    	int updatedRows = flightRepository.delayFlightsFromAirport(airportId, minutes);
+    	return "Sukces: Opóźniono " + updatedRows + " lotów z lotniska o ID " + airportId + " o " + minutes + " minut.";
+    }
+    
+    @GetMapping("/analysis")
+    public Long getFlightCountAnalysis(@RequestParam Long airlineId, @RequestParam Long airportId, 
+    		@RequestParam @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME) java.time.LocalDateTime start,
+    		@RequestParam @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME) java.time.LocalDateTime end) {
+    	return flightRepository.countFlightsForAirlineAndAirport(airlineId, airportId, start, end);
+    }
 }
