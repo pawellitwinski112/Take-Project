@@ -3,16 +3,19 @@ package pl.polsl.take.controllers;
 import org.springframework.web.bind.annotation.*;
 import pl.polsl.take.entities.Airline;
 import pl.polsl.take.repositories.AirlineRepository;
+import pl.polsl.take.repositories.FlightRepository;
 
 @RestController
 @RequestMapping("/airlines")
 public class AirlineController {
 
     private final AirlineRepository airlineRepository;
+    private final FlightRepository flightRepository;
 
     // Wstrzykiwanie zależności przez konstruktor (zastępuje @Autowired z wykładu)
-    public AirlineController(AirlineRepository airlineRepository) {
+    public AirlineController(AirlineRepository airlineRepository, FlightRepository flightRepository) {
         this.airlineRepository = airlineRepository;
+        this.flightRepository = flightRepository;
     }
 
     // ==========================================
@@ -65,7 +68,10 @@ public class AirlineController {
         Airline airline = airlineRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Błąd: Nie znaleziono linii lotniczej o ID " + id));
 
-       
+        // Zabezpieczenie biznesowe: Sprawdzamy, czy linia obsługuje jakieś loty
+        if (flightRepository.existsByAirlineId(id)) {
+            throw new IllegalStateException("Konflikt: Nie można usunąć linii lotniczej, ponieważ obsługuje ona zaplanowane loty.");
+        }
 
         // Jeśli jest czysto - usuwamy
         airlineRepository.delete(airline);

@@ -6,4 +6,5 @@ import pl.polsl.take.entities.BoardingPass;
 
 @Repository
 public interface BoardingPassRepository extends CrudRepository<BoardingPass, Long> {
+    boolean existsByPassengerId(Long passengerId);
 }

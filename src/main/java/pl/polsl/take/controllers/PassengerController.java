@@ -6,16 +6,19 @@ import org.springframework.web.bind.annotation.*;
 import pl.polsl.take.entities.Passenger;
 import pl.polsl.take.entities.PassengerManifestDto;
 import pl.polsl.take.repositories.PassengerRepository;
+import pl.polsl.take.repositories.BoardingPassRepository;
 
 @RestController
 @RequestMapping("/passengers")
 public class PassengerController {
 
     private final PassengerRepository passengerRepository;
+    private final BoardingPassRepository boardingPassRepository;
 
     // Wstrzykiwanie zależności przez konstruktor (zastępuje @Autowired z wykładu)
-    public PassengerController(PassengerRepository passengerRepository) {
+    public PassengerController(PassengerRepository passengerRepository, BoardingPassRepository boardingPassRepository) {
         this.passengerRepository = passengerRepository;
+        this.boardingPassRepository = boardingPassRepository;
     }
 
     // ==========================================
@@ -68,7 +71,11 @@ public class PassengerController {
         Passenger passenger = passengerRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Błąd: Nie znaleziono pasażera o ID " + id));
 
-      
+        // Zabezpieczenie biznesowe: Sprawdzamy, czy pasażer posiada karty pokładowe
+        if (boardingPassRepository.existsByPassengerId(id)) {
+            throw new IllegalStateException("Konflikt: Nie można usunąć pasażera, ponieważ posiada przypisane karty pokładowe.");
+        }
+
         // Jeśli jest czysto - usuwamy
         passengerRepository.delete(passenger);
     }
