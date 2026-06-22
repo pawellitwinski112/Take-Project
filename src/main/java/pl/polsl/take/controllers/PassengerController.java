@@ -2,6 +2,7 @@ package pl.polsl.take.controllers;
 
 import java.util.List;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pl.polsl.take.entities.Passenger;
 import pl.polsl.take.entities.PassengerManifestDto;
@@ -66,7 +67,7 @@ public class PassengerController {
     // D - DELETE (DELETE)
     // ==========================================
     @DeleteMapping("/{id}")
-    public void deletePassenger(@PathVariable Long id) {
+    public ResponseEntity<Void> deletePassenger(@PathVariable Long id) {
         // Najpierw pobieramy pasażera z bazy
         Passenger passenger = passengerRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Błąd: Nie znaleziono pasażera o ID " + id));
@@ -78,6 +79,7 @@ public class PassengerController {
 
         // Jeśli jest czysto - usuwamy
         passengerRepository.delete(passenger);
+        return ResponseEntity.noContent().build();
     }
     
     @GetMapping("/manifest/{flightId}")

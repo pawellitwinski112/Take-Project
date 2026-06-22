@@ -1,5 +1,6 @@
 package pl.polsl.take.controllers;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pl.polsl.take.entities.Flight;
 import pl.polsl.take.repositories.FlightRepository;
@@ -53,25 +54,38 @@ public class FlightController {
     }
 
     @DeleteMapping("/{id}")
-    public void deleteFlight(@PathVariable Long id) {
-        // Tu z kolei zadziała automatyczne usuwanie kaskadowe kart pokładowych (BoardingPass), 
-        // które skonfigurowaliśmy wczoraj w encji Flight!
+    public ResponseEntity<Void> deleteFlight(@PathVariable Long id) {
+        // Tu z kolei zadziała automatyczne usuwanie kaskadowe kart pokładowych (BoardingPass),
+        // które skonfigurowaliśmy wcześniej w encji Flight!
         if (!flightRepository.existsById(id)) {
-            throw new RuntimeException("Błąd: Lot o podanym ID nie istnieje.");
+            throw new RuntimeException("Błąd: Nie znaleziono lotu o ID " + id);
         }
         flightRepository.deleteById(id);
+        return ResponseEntity.noContent().build();
     }
     
     @PutMapping("/delay")
     public String delayFlights(@RequestParam Long airportId, @RequestParam Integer minutes) {
+        if (minutes == null || minutes <= 0) {
+            throw new IllegalArgumentException("Błąd: Liczba minut opóźnienia musi być większa od zera.");
+        }
     	int updatedRows = flightRepository.delayFlightsFromAirport(airportId, minutes);
+        if (updatedRows == 0) {
+            throw new RuntimeException("Błąd: Nie znaleziono lotów z lotniska o ID " + airportId + " lub lotnisko nie istnieje.");
+        }
     	return "Sukces: Opóźniono " + updatedRows + " lotów z lotniska o ID " + airportId + " o " + minutes + " minut.";
     }
     
     @GetMapping("/analysis")
-    public Long getFlightCountAnalysis(@RequestParam Long airlineId, @RequestParam Long airportId, 
+    public Long getFlightCountAnalysis(@RequestParam Long airlineId, @RequestParam Long airportId,
     		@RequestParam @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME) java.time.LocalDateTime start,
     		@RequestParam @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME) java.time.LocalDateTime end) {
+        if (start == null || end == null) {
+            throw new IllegalArgumentException("Błąd: Parametry 'start' i 'end' są wymagane.");
+        }
+        if (!start.isBefore(end)) {
+            throw new IllegalArgumentException("Błąd: Data początkowa musi być wcześniejsza niż data końcowa.");
+        }
     	return flightRepository.countFlightsForAirlineAndAirport(airlineId, airportId, start, end);
     }
 }

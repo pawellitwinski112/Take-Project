@@ -1,5 +1,6 @@
 package pl.polsl.take.controllers;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pl.polsl.take.entities.Airline;
 import pl.polsl.take.repositories.AirlineRepository;
@@ -63,7 +64,7 @@ public class AirlineController {
     // D - DELETE (DELETE)
     // ==========================================
     @DeleteMapping("/{id}")
-    public void deleteAirline(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteAirline(@PathVariable Long id) {
         // Najpierw pobieramy linię lotniczą z bazy
         Airline airline = airlineRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Błąd: Nie znaleziono linii lotniczej o ID " + id));
@@ -75,5 +76,6 @@ public class AirlineController {
 
         // Jeśli jest czysto - usuwamy
         airlineRepository.delete(airline);
+        return ResponseEntity.noContent().build();
     }
 }

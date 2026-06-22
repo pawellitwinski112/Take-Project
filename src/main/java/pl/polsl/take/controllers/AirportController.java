@@ -1,5 +1,6 @@
 package pl.polsl.take.controllers;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pl.polsl.take.entities.Airport;
 import pl.polsl.take.repositories.AirportRepository;
@@ -60,7 +61,7 @@ public class AirportController {
     // D - DELETE (DELETE)
     // ==========================================
     @DeleteMapping("/{id}")
-    public void deleteAirport(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteAirport(@PathVariable Long id) {
         // Najpierw pobieramy lotnisko z bazy
         Airport airport = airportRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Błąd: Nie znaleziono lotniska o ID " + id));
@@ -75,5 +76,6 @@ public class AirportController {
 
         // Jeśli jest czysto - usuwamy
         airportRepository.delete(airport);
+        return ResponseEntity.noContent().build();
     }
 }

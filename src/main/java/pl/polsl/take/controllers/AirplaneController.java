@@ -1,5 +1,6 @@
 package pl.polsl.take.controllers;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pl.polsl.take.entities.Airplane;
 import pl.polsl.take.repositories.AirplaneRepository;
@@ -45,14 +46,14 @@ public class AirplaneController {
     }
 
     @DeleteMapping("/{id}")
-    public void deleteAirplane(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteAirplane(@PathVariable Long id) {
         if (!airplaneRepository.existsById(id)) {
-            throw new RuntimeException("Błąd: Samolot o podanym ID nie istnieje.");
+            throw new RuntimeException("Błąd: Nie znaleziono samolotu o ID " + id);
         }
-        // BŁYSKAWICZNE SPRAWDZENIE W BAZIE (Bez pobierania list do pamięci RAM)
         if (flightRepository.existsByAirplaneId(id)) {
             throw new IllegalStateException("Konflikt: Nie można usunąć samolotu, ponieważ bierze on udział w zaplanowanych lotach.");
         }
         airplaneRepository.deleteById(id);
+        return ResponseEntity.noContent().build();
     }
 }
