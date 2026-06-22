@@ -77,15 +77,17 @@ public class FlightController {
     }
     
     @GetMapping("/analysis")
-    public Long getFlightCountAnalysis(@RequestParam Long airlineId, @RequestParam Long airportId,
-    		@RequestParam @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME) java.time.LocalDateTime start,
-    		@RequestParam @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME) java.time.LocalDateTime end) {
-        if (start == null || end == null) {
+    public Long getFlightCountAnalysis(@RequestParam Long airlineId, @RequestParam Long airportId, 
+    		@RequestParam @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) java.time.LocalDate start,
+    		@RequestParam @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) java.time.LocalDate end) {
+    	if (start == null || end == null) {
             throw new IllegalArgumentException("Błąd: Parametry 'start' i 'end' są wymagane.");
         }
         if (!start.isBefore(end)) {
             throw new IllegalArgumentException("Błąd: Data początkowa musi być wcześniejsza niż data końcowa.");
         }
-    	return flightRepository.countFlightsForAirlineAndAirport(airlineId, airportId, start, end);
+    	java.time.LocalDateTime startOfDay = start.atStartOfDay();
+    	java.time.LocalDateTime endOfDay = end.atTime(java.time.LocalTime.MAX);
+    	return flightRepository.countFlightsForAirlineAndAirport(airlineId, airportId, startOfDay, endOfDay);
     }
 }
