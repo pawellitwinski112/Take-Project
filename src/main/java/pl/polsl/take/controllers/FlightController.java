@@ -70,8 +70,13 @@ public class FlightController {
     
     @GetMapping("/analysis")
     public Long getFlightCountAnalysis(@RequestParam Long airlineId, @RequestParam Long airportId, 
-    		@RequestParam @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME) java.time.LocalDateTime start,
-    		@RequestParam @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME) java.time.LocalDateTime end) {
-    	return flightRepository.countFlightsForAirlineAndAirport(airlineId, airportId, start, end);
+    		@RequestParam @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) java.time.LocalDate start,
+    		@RequestParam @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) java.time.LocalDate end) {
+    	if (start.isAfter(end)) {
+    	    throw new IllegalArgumentException("Data początkowa nie może być późniejsza niż data końcowa.");
+    	}
+    	java.time.LocalDateTime startOfDay = start.atStartOfDay();
+    	java.time.LocalDateTime endOfDay = end.atTime(java.time.LocalTime.MAX);
+    	return flightRepository.countFlightsForAirlineAndAirport(airlineId, airportId, startOfDay, endOfDay);
     }
 }
