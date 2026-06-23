@@ -30,5 +30,6 @@ public class Passenger {
 	private Integer phoneNum;
 	
 	@OneToMany(mappedBy = "passenger")
+	@Getter @Setter
 	private List<BoardingPass> boardingPasses;
 }
