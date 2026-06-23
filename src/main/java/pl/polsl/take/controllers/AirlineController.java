@@ -17,7 +17,6 @@ public class AirlineController {
     private final AirlineRepository airlineRepository;
     private final FlightRepository flightRepository;
 
-    // Wstrzykiwanie zależności przez konstruktor (zastępuje @Autowired z wykładu)
     public AirlineController(AirlineRepository airlineRepository, FlightRepository flightRepository) {
         this.airlineRepository = airlineRepository;
         this.flightRepository = flightRepository;

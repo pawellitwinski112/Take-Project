@@ -26,7 +26,7 @@ public class FlightDTO extends RepresentationModel<FlightDTO> {
         this.departureTime = flight.getDepartureTime();
         this.arrivalTime = flight.getArrivalTime();
 
-        // 1. Link do samego siebie (self) - standard REST
+        // 1. Link do samego siebie (Self)
         this.add(linkTo(methodOn(FlightController.class).getFlightById(flight.getId())).withSelfRel());
 
         // 2. Link do samolotu, który obsługuje ten lot

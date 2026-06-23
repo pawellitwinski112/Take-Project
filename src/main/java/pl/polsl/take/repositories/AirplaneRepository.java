@@ -5,5 +5,4 @@ import org.springframework.stereotype.Repository;
 import pl.polsl.take.entities.Airplane;
 
 @Repository
-public interface AirplaneRepository extends CrudRepository<Airplane, Long> {
-}
+public interface AirplaneRepository extends CrudRepository<Airplane, Long> {}

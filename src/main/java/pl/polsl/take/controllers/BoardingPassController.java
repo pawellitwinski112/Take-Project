@@ -19,7 +19,6 @@ public class BoardingPassController {
         this.boardingPassRepository = boardingPassRepository;
     }
     
-
     @PostMapping
     public BoardingPass addBoardingPass(@RequestBody BoardingPass boardingPass) {
         if (boardingPass.getId() != null) {
@@ -32,7 +31,6 @@ public class BoardingPassController {
     // R - READ (GET)
     // ==========================================
 
-    // Zmodyfikowane metody GET:
     @GetMapping
     public CollectionModel<BoardingPassDTO> getAllBoardingPasses() {
         List<BoardingPassDTO> passesDTO = new ArrayList<>();

@@ -21,7 +21,6 @@ public class PassengerController {
     private final PassengerRepository passengerRepository;
     private final BoardingPassRepository boardingPassRepository;
 
-    // Wstrzykiwanie zależności przez konstruktor (zastępuje @Autowired z wykładu)
     public PassengerController(PassengerRepository passengerRepository, BoardingPassRepository boardingPassRepository) {
         this.passengerRepository = passengerRepository;
         this.boardingPassRepository = boardingPassRepository;

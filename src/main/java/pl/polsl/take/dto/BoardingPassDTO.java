@@ -21,7 +21,7 @@ public class BoardingPassDTO extends RepresentationModel<BoardingPassDTO> {
         this.flightClass = boardingPass.getFlightClass();
         this.seat = boardingPass.getSeat();
 
-        // 1. Link do samej karty pokładowej (Self)
+        // 1. Link do samego siebie (Self)
         this.add(linkTo(methodOn(BoardingPassController.class).getBoardingPassById(boardingPass.getId())).withSelfRel());
 
         // 2. Link do szczegółów lotu

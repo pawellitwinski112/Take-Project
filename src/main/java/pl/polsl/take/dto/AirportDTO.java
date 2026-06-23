@@ -23,7 +23,7 @@ public class AirportDTO extends RepresentationModel<AirportDTO> {
         this.country = airport.getCountry();
         this.city = airport.getCity();
 
-        // 1. Link do samego lotniska
+        // 1. Link do samego siebie (Self)
         this.add(linkTo(methodOn(AirportController.class).getAirportById(airport.getId())).withSelfRel());
 
         // 2. Linki do metod dociągających

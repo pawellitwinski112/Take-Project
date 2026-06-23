@@ -67,8 +67,6 @@ public class FlightController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteFlight(@PathVariable Long id) {
-        // Tu z kolei zadziała automatyczne usuwanie kaskadowe kart pokładowych (BoardingPass),
-        // które skonfigurowaliśmy wcześniej w encji Flight!
         if (!flightRepository.existsById(id)) {
             throw new RuntimeException("Błąd: Nie znaleziono lotu o ID " + id);
         }

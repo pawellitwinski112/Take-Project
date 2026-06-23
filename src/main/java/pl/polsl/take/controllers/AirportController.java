@@ -18,7 +18,6 @@ public class AirportController {
 
     private final AirportRepository airportRepository;
 
-    // Wstrzykiwanie zależności przez konstruktor (zastępuje @Autowired z wykładu)
     public AirportController(AirportRepository airportRepository) {
         this.airportRepository = airportRepository;
     }

@@ -25,10 +25,8 @@ public class Airport {
 	@Column(name = "airport_name")
 	private String airportName;
 	
-	
 	private String country;
 	
-
 	private String city;
 	
 	@OneToMany(mappedBy = "departureAirport")
