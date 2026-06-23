@@ -5,7 +5,7 @@ import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pl.polsl.take.entities.Passenger;
-import pl.polsl.take.entities.PassengerManifestDto;
+import pl.polsl.take.dto.PassengerManifestDTO;
 import pl.polsl.take.repositories.PassengerRepository;
 import pl.polsl.take.repositories.BoardingPassRepository;
 import pl.polsl.take.dto.PassengerDTO;
@@ -74,14 +74,15 @@ public class PassengerController {
     // U - UPDATE (PUT)
     // ==========================================
     @PutMapping
-    public Passenger updatePassenger(@RequestBody Passenger passenger) {
+    public PassengerDTO updatePassenger(@RequestBody Passenger passenger) {
         if (passenger.getId() == null) {
             throw new IllegalArgumentException("Błąd: Aby zaktualizować pasażera, musisz podać jego ID.");
         }
         if (!passengerRepository.existsById(passenger.getId())) {
             throw new RuntimeException("Błąd: Pasażer o podanym ID nie istnieje.");
         }
-        return passengerRepository.save(passenger);
+        Passenger updatedPassenger = passengerRepository.save(passenger);
+        return new PassengerDTO(updatedPassenger);
     }
 
     // ==========================================
@@ -104,7 +105,7 @@ public class PassengerController {
     }
     
     @GetMapping("/manifest/{flightId}")
-    public List<PassengerManifestDto> getPassengerManifest(@PathVariable Long flightId){
+    public List<PassengerManifestDTO> getPassengerManifest(@PathVariable Long flightId){
     	return passengerRepository.findPassengerManifestByFlightId(flightId);
     }
 }
