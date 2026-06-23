@@ -5,6 +5,13 @@ import org.springframework.web.bind.annotation.*;
 import pl.polsl.take.entities.Airport;
 import pl.polsl.take.repositories.AirportRepository;
 
+import pl.polsl.take.dto.FlightDTO;
+import pl.polsl.take.entities.Flight;
+import org.springframework.hateoas.CollectionModel;
+import pl.polsl.take.dto.AirportDTO;
+import java.util.ArrayList;
+import java.util.List;
+
 @RestController
 @RequestMapping("/airports")
 public class AirportController {
@@ -30,16 +37,23 @@ public class AirportController {
     // ==========================================
     // R - READ (GET)
     // ==========================================
-    // 1. Pobieranie listy wszystkich lotnisk
+   // 1. Pobieranie listy wszystkich lotnisk
     @GetMapping
-    public Iterable<Airport> getAllAirports() {
-        return airportRepository.findAll();
+    public CollectionModel<AirportDTO> getAllAirports() {
+        // Używamy StreamSupport, aby zamienić Iterable na Stream 
+        java.util.List<AirportDTO> airports = java.util.stream.StreamSupport
+                .stream(airportRepository.findAll().spliterator(), false)
+                .map(AirportDTO::new)
+                .collect(java.util.stream.Collectors.toList());
+                
+        return CollectionModel.of(airports);
     }
 
     // 2. Pobieranie konkretnego lotniska po ID (np. /airports/1)
     @GetMapping("/{id}")
-    public Airport getAirportById(@PathVariable Long id) {
+    public AirportDTO getAirportById(@PathVariable Long id) {
         return airportRepository.findById(id)
+                .map(AirportDTO::new) 
                 .orElseThrow(() -> new RuntimeException("Błąd: Nie znaleziono lotniska o ID " + id));
     }
 
@@ -74,8 +88,38 @@ public class AirportController {
             throw new IllegalStateException("Konflikt: Nie można usunąć lotniska, ponieważ posiada zaplanowane loty.");
         }
 
-        // Jeśli jest czysto - usuwamy
         airportRepository.delete(airport);
         return ResponseEntity.noContent().build();
+    }
+
+    // ==========================================
+    // METODY DOCIĄGAJĄCE (HATEOAS)
+    // ==========================================
+    @GetMapping("/{id}/departures")
+    public CollectionModel<FlightDTO> getDepartingFlights(@PathVariable Long id) {
+        Airport airport = airportRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Błąd: Nie znaleziono lotniska o ID " + id));
+        
+        List<FlightDTO> flightsDTO = new ArrayList<>();
+        if(airport.getDepartingFlights() != null) {
+            for(Flight f : airport.getDepartingFlights()) {
+                flightsDTO.add(new FlightDTO(f));
+            }
+        }
+        return CollectionModel.of(flightsDTO);
+    }
+
+    @GetMapping("/{id}/arrivals")
+    public CollectionModel<FlightDTO> getArrivingFlights(@PathVariable Long id) {
+        Airport airport = airportRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Błąd: Nie znaleziono lotniska o ID " + id));
+        
+        List<FlightDTO> flightsDTO = new ArrayList<>();
+        if(airport.getArrivingFlights() != null) {
+            for(Flight f : airport.getArrivingFlights()) {
+                flightsDTO.add(new FlightDTO(f));
+            }
+        }
+        return CollectionModel.of(flightsDTO);
     }
 }

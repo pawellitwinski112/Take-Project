@@ -5,6 +5,10 @@ import org.springframework.web.bind.annotation.*;
 import pl.polsl.take.entities.Airplane;
 import pl.polsl.take.repositories.AirplaneRepository;
 import pl.polsl.take.repositories.FlightRepository;
+import pl.polsl.take.dto.AirplaneDTO;
+import org.springframework.hateoas.CollectionModel;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 @RestController
 @RequestMapping("/airplanes")
@@ -26,14 +30,22 @@ public class AirplaneController {
         return airplaneRepository.save(airplane);
     }
 
+   // ==========================================
+    // R - READ (GET) z HATEOAS
+    // ==========================================
     @GetMapping
-    public Iterable<Airplane> getAllAirplanes() {
-        return airplaneRepository.findAll();
+    public CollectionModel<AirplaneDTO> getAllAirplanes() {
+        java.util.List<AirplaneDTO> airplanes = StreamSupport
+                .stream(airplaneRepository.findAll().spliterator(), false)
+                .map(AirplaneDTO::new)
+                .collect(Collectors.toList());
+        return CollectionModel.of(airplanes);
     }
 
     @GetMapping("/{id}")
-    public Airplane getAirplaneById(@PathVariable Long id) {
+    public AirplaneDTO getAirplaneById(@PathVariable Long id) {
         return airplaneRepository.findById(id)
+                .map(AirplaneDTO::new)
                 .orElseThrow(() -> new RuntimeException("Błąd: Nie znaleziono samolotu o ID " + id));
     }
 

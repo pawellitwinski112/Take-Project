@@ -5,6 +5,10 @@ import org.springframework.web.bind.annotation.*;
 import pl.polsl.take.entities.Airline;
 import pl.polsl.take.repositories.AirlineRepository;
 import pl.polsl.take.repositories.FlightRepository;
+import pl.polsl.take.dto.AirlineDTO;
+import org.springframework.hateoas.CollectionModel;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 @RestController
 @RequestMapping("/airlines")
@@ -31,18 +35,21 @@ public class AirlineController {
     }
 
     // ==========================================
-    // R - READ (GET)
+    // R - READ (GET) z HATEOAS
     // ==========================================
-    // 1. Pobieranie listy wszystkich linii lotniczych
     @GetMapping
-    public Iterable<Airline> getAllAirlines() {
-        return airlineRepository.findAll();
+    public CollectionModel<AirlineDTO> getAllAirlines() {
+        java.util.List<AirlineDTO> airlines = StreamSupport
+                .stream(airlineRepository.findAll().spliterator(), false)
+                .map(AirlineDTO::new)
+                .collect(Collectors.toList());
+        return CollectionModel.of(airlines);
     }
 
-    // 2. Pobieranie konkretnego lotniska po ID (np. /airports/1)
     @GetMapping("/{id}")
-    public Airline getAirlineById(@PathVariable Long id) {
+    public AirlineDTO getAirlineById(@PathVariable Long id) {
         return airlineRepository.findById(id)
+                .map(AirlineDTO::new)
                 .orElseThrow(() -> new RuntimeException("Błąd: Nie znaleziono linii lotniczej o ID " + id));
     }
 

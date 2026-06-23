@@ -4,6 +4,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pl.polsl.take.entities.Flight;
 import pl.polsl.take.repositories.FlightRepository;
+import pl.polsl.take.dto.FlightDTO;
+import org.springframework.hateoas.CollectionModel;
+import java.util.ArrayList;
+import java.util.List;
 
 @RestController
 @RequestMapping("/flights")
@@ -23,15 +27,23 @@ public class FlightController {
         return flightRepository.save(flight);
     }
 
+   // ==========================================
+    // R - READ (GET) z obsługą HATEOAS
+    // ==========================================
     @GetMapping
-    public Iterable<Flight> getAllFlights() {
-        return flightRepository.findAll();
+    public CollectionModel<FlightDTO> getAllFlights() {
+        List<FlightDTO> flightsDTO = new ArrayList<>();
+        for(Flight flight : flightRepository.findAll()) {
+            flightsDTO.add(new FlightDTO(flight));
+        }
+        return CollectionModel.of(flightsDTO);
     }
 
     @GetMapping("/{id}")
-    public Flight getFlightById(@PathVariable Long id) {
-        return flightRepository.findById(id)
+    public FlightDTO getFlightById(@PathVariable Long id) {
+        Flight flight = flightRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Błąd: Nie znaleziono lotu o ID " + id));
+        return new FlightDTO(flight);
     }
 
     // ==========================================

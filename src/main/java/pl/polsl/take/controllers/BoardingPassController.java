@@ -4,6 +4,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pl.polsl.take.entities.BoardingPass;
 import pl.polsl.take.repositories.BoardingPassRepository;
+import pl.polsl.take.dto.BoardingPassDTO;
+import org.springframework.hateoas.CollectionModel;
+import java.util.ArrayList;
+import java.util.List;
 
 @RestController
 @RequestMapping("/boarding-passes")
@@ -14,6 +18,7 @@ public class BoardingPassController {
     public BoardingPassController(BoardingPassRepository boardingPassRepository) {
         this.boardingPassRepository = boardingPassRepository;
     }
+    
 
     @PostMapping
     public BoardingPass addBoardingPass(@RequestBody BoardingPass boardingPass) {
@@ -22,17 +27,31 @@ public class BoardingPassController {
         }
         return boardingPassRepository.save(boardingPass);
     }
+    
+    // ==========================================
+    // R - READ (GET)
+    // ==========================================
 
+    // Zmodyfikowane metody GET:
     @GetMapping
-    public Iterable<BoardingPass> getAllBoardingPasses() {
-        return boardingPassRepository.findAll();
+    public CollectionModel<BoardingPassDTO> getAllBoardingPasses() {
+        List<BoardingPassDTO> passesDTO = new ArrayList<>();
+        for(BoardingPass pass : boardingPassRepository.findAll()) {
+            passesDTO.add(new BoardingPassDTO(pass));
+        }
+        return CollectionModel.of(passesDTO);
     }
 
     @GetMapping("/{id}")
-    public BoardingPass getBoardingPassById(@PathVariable Long id) {
-        return boardingPassRepository.findById(id)
+    public BoardingPassDTO getBoardingPassById(@PathVariable Long id) {
+        BoardingPass pass = boardingPassRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Błąd: Nie znaleziono karty pokładowej o ID " + id));
+        return new BoardingPassDTO(pass);
     }
+
+    // ==========================================
+    // U - UPDATE (PUT)
+    // ==========================================
 
     @PutMapping
     public BoardingPass updateBoardingPass(@RequestBody BoardingPass boardingPass) {

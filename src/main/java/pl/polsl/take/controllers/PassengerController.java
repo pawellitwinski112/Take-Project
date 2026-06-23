@@ -8,6 +8,11 @@ import pl.polsl.take.entities.Passenger;
 import pl.polsl.take.entities.PassengerManifestDto;
 import pl.polsl.take.repositories.PassengerRepository;
 import pl.polsl.take.repositories.BoardingPassRepository;
+import pl.polsl.take.dto.PassengerDTO;
+import pl.polsl.take.dto.BoardingPassDTO;
+import org.springframework.hateoas.CollectionModel;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 @RestController
 @RequestMapping("/passengers")
@@ -38,17 +43,34 @@ public class PassengerController {
     // ==========================================
     // 1. Pobieranie listy wszystkich pasażerów
     @GetMapping
-    public Iterable<Passenger> getAllPassengers() {
-        return passengerRepository.findAll();
+    public CollectionModel<PassengerDTO> getAllPassengers() {
+        java.util.List<PassengerDTO> passengers = StreamSupport
+                .stream(passengerRepository.findAll().spliterator(), false)
+                .map(PassengerDTO::new)
+                .collect(Collectors.toList());
+        return CollectionModel.of(passengers);
     }
-
     // 2. Pobieranie konkretnego pasażera po ID (np. /passengers/1)
     @GetMapping("/{id}")
-    public Passenger getPassengerById(@PathVariable Long id) {
-        return passengerRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Błąd: Nie znaleziono pasażera o ID " + id));
+    public PassengerDTO getPassengerById(@PathVariable Long id) {
+            return passengerRepository.findById(id)
+                    .map(PassengerDTO::new)
+                    .orElseThrow(() -> new RuntimeException("Błąd: Nie znaleziono pasażera o ID " + id));
     }
-
+    // ==========================================
+    // METODA DOCIĄGAJĄCA KARTY POKŁADOWE PASAŻERA
+    // ==========================================
+    @GetMapping("/{id}/boarding-passes")
+    public org.springframework.hateoas.CollectionModel<pl.polsl.take.dto.BoardingPassDTO> getBoardingPassesForPassenger(@PathVariable Long id) {
+        Passenger passenger = passengerRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Błąd: Nie znaleziono pasażera o ID " + id));
+        
+        java.util.List<pl.polsl.take.dto.BoardingPassDTO> passes = passenger.getBoardingPasses().stream()
+                .map(pl.polsl.take.dto.BoardingPassDTO::new)
+                .collect(java.util.stream.Collectors.toList());
+                
+        return org.springframework.hateoas.CollectionModel.of(passes);
+    }
     // ==========================================
     // U - UPDATE (PUT)
     // ==========================================
