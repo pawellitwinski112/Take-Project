@@ -24,7 +24,7 @@ public class AirplaneController {
 
     @PostMapping
     public Airplane addAirplane(@RequestBody Airplane airplane) {
-        if (airplane.getId() != null) {
+        if (airplane.getId() != null && airplane.getId() != 0) {
             throw new IllegalArgumentException("Błąd: Podczas dodawania samolotu nie podawaj ID.");
         }
         return airplaneRepository.save(airplane);

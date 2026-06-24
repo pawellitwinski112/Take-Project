@@ -27,7 +27,7 @@ public class AirlineController {
     // ==========================================
     @PostMapping
     public Airline addAirline(@RequestBody Airline airline) {
-        if (airline.getId() != null) {
+        if (airline.getId() != null && airline.getId() != 0) {
             throw new IllegalArgumentException("Błąd: Podczas dodawania linii lotniczej nie podawaj ID.");
         }
         return airlineRepository.save(airline);

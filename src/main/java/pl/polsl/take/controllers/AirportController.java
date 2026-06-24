@@ -27,7 +27,7 @@ public class AirportController {
     // ==========================================
     @PostMapping
     public Airport addAirport(@RequestBody Airport airport) {
-        if (airport.getId() != null) {
+        if (airport.getId() != null && airport.getId() != 0) {
             throw new IllegalArgumentException("Błąd: Podczas dodawania lotniska nie podawaj ID.");
         }
         return airportRepository.save(airport);

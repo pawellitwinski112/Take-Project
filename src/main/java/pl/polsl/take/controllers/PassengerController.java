@@ -32,7 +32,7 @@ public class PassengerController {
     // ==========================================
     @PostMapping
     public PassengerDTO addPassenger(@RequestBody PassengerRequestDTO dto) {
-        if (dto.getId() != null) {
+        if (dto.getId() != null && dto.getId() != 0) {
             throw new IllegalArgumentException("Błąd: Podczas dodawania pasażera nie podawaj ID.");
         }
         Passenger passenger = new Passenger();

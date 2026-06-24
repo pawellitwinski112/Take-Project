@@ -31,7 +31,7 @@ public class BoardingPassController {
     
     @PostMapping
     public BoardingPassDTO addBoardingPass(@RequestBody BoardingPassRequestDTO dto) {
-        if (dto.getId() != null) {
+        if (dto.getId() != null && dto.getId() != 0) {
             throw new IllegalArgumentException("Błąd: Podczas generowania karty pokładowej nie podawaj ID.");
         }
         BoardingPass pass = new BoardingPass();
