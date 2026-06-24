@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pl.polsl.take.entities.Passenger;
 import pl.polsl.take.dto.PassengerManifestDTO;
+import pl.polsl.take.dto.PassengerRequestDTO;
 import pl.polsl.take.repositories.PassengerRepository;
 import pl.polsl.take.repositories.BoardingPassRepository;
 import pl.polsl.take.dto.PassengerDTO;
@@ -30,11 +31,15 @@ public class PassengerController {
     // C - CREATE (POST)
     // ==========================================
     @PostMapping
-    public Passenger addPassenger(@RequestBody Passenger passenger) {
-        if (passenger.getId() != null) {
+    public PassengerDTO addPassenger(@RequestBody PassengerRequestDTO dto) {
+        if (dto.getId() != null) {
             throw new IllegalArgumentException("Błąd: Podczas dodawania pasażera nie podawaj ID.");
         }
-        return passengerRepository.save(passenger);
+        Passenger passenger = new Passenger();
+        mapDtoToEntity(dto, passenger);
+        
+        Passenger savedPassenger = passengerRepository.save(passenger);
+        return new PassengerDTO(savedPassenger);
     }
 
     // ==========================================
@@ -74,13 +79,14 @@ public class PassengerController {
     // U - UPDATE (PUT)
     // ==========================================
     @PutMapping
-    public PassengerDTO updatePassenger(@RequestBody Passenger passenger) {
-        if (passenger.getId() == null) {
+    public PassengerDTO updatePassenger(@RequestBody PassengerRequestDTO dto) {
+        if (dto.getId() == null) {
             throw new IllegalArgumentException("Błąd: Aby zaktualizować pasażera, musisz podać jego ID.");
         }
-        if (!passengerRepository.existsById(passenger.getId())) {
-            throw new RuntimeException("Błąd: Pasażer o podanym ID nie istnieje.");
-        }
+        Passenger passenger = passengerRepository.findById(dto.getId())
+                .orElseThrow(() -> new RuntimeException("Błąd: Pasażer o podanym ID nie istnieje."));
+        
+        mapDtoToEntity(dto, passenger);
         Passenger updatedPassenger = passengerRepository.save(passenger);
         return new PassengerDTO(updatedPassenger);
     }
@@ -107,5 +113,12 @@ public class PassengerController {
     @GetMapping("/manifest/{flightId}")
     public List<PassengerManifestDTO> getPassengerManifest(@PathVariable Long flightId){
     	return passengerRepository.findPassengerManifestByFlightId(flightId);
+    }
+    
+    private void mapDtoToEntity(PassengerRequestDTO dto, Passenger passenger) {
+        passenger.setName(dto.getName());
+        passenger.setSurname(dto.getSurname());
+        passenger.setMail(dto.getMail());
+        passenger.setPhoneNum(dto.getPhoneNum());
     }
 }

@@ -3,8 +3,14 @@ package pl.polsl.take.controllers;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pl.polsl.take.entities.BoardingPass;
+import pl.polsl.take.entities.Flight;
+import pl.polsl.take.entities.Passenger;
 import pl.polsl.take.repositories.BoardingPassRepository;
+import pl.polsl.take.repositories.FlightRepository;
+import pl.polsl.take.repositories.PassengerRepository;
 import pl.polsl.take.dto.BoardingPassDTO;
+import pl.polsl.take.dto.BoardingPassRequestDTO;
+
 import org.springframework.hateoas.CollectionModel;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,17 +20,25 @@ import java.util.List;
 public class BoardingPassController {
 
     private final BoardingPassRepository boardingPassRepository;
+    private final FlightRepository flightRepository;
+    private final PassengerRepository passengerRepository;
 
-    public BoardingPassController(BoardingPassRepository boardingPassRepository) {
+    public BoardingPassController(BoardingPassRepository boardingPassRepository, FlightRepository flightRepository, PassengerRepository passengerRepository) {
         this.boardingPassRepository = boardingPassRepository;
+        this.flightRepository = flightRepository;
+        this.passengerRepository = passengerRepository;
     }
     
     @PostMapping
-    public BoardingPass addBoardingPass(@RequestBody BoardingPass boardingPass) {
-        if (boardingPass.getId() != null) {
+    public BoardingPassDTO addBoardingPass(@RequestBody BoardingPassRequestDTO dto) {
+        if (dto.getId() != null) {
             throw new IllegalArgumentException("Błąd: Podczas generowania karty pokładowej nie podawaj ID.");
         }
-        return boardingPassRepository.save(boardingPass);
+        BoardingPass pass = new BoardingPass();
+        mapDtoToEntity(dto, pass);
+        
+        BoardingPass savedPass = boardingPassRepository.save(pass);
+        return new BoardingPassDTO(savedPass);
     }
     
     // ==========================================
@@ -52,11 +66,18 @@ public class BoardingPassController {
     // ==========================================
 
     @PutMapping
-    public BoardingPass updateBoardingPass(@RequestBody BoardingPass boardingPass) {
-        if (boardingPass.getId() == null || !boardingPassRepository.existsById(boardingPass.getId())) {
+    public BoardingPassDTO updateBoardingPass(@RequestBody BoardingPassRequestDTO dto) {
+        if (dto.getId() == null) {
             throw new IllegalArgumentException("Błąd: Podaj poprawne ID do aktualizacji karty pokładowej.");
         }
-        return boardingPassRepository.save(boardingPass);
+        
+        BoardingPass pass = boardingPassRepository.findById(dto.getId())
+                .orElseThrow(() -> new RuntimeException("Błąd: Karta pokładowa o podanym ID nie istnieje."));
+        
+        mapDtoToEntity(dto, pass);
+        
+        BoardingPass updatedPass = boardingPassRepository.save(pass);
+        return new BoardingPassDTO(updatedPass);
     }
 
     @DeleteMapping("/{id}")
@@ -66,5 +87,22 @@ public class BoardingPassController {
         }
         boardingPassRepository.deleteById(id);
         return ResponseEntity.noContent().build();
+    }
+    
+    private void mapDtoToEntity(BoardingPassRequestDTO dto, BoardingPass pass) {
+        pass.setFlightClass(dto.getFlightClass());
+        pass.setSeat(dto.getSeat());
+
+        if (dto.getFlightId() != null) {
+            Flight flight = flightRepository.findById(dto.getFlightId())
+                    .orElseThrow(() -> new RuntimeException("Nie znaleziono lotu o ID: " + dto.getFlightId()));
+            pass.setFlight(flight);
+        }
+
+        if (dto.getPassengerId() != null) {
+            Passenger passenger = passengerRepository.findById(dto.getPassengerId())
+                    .orElseThrow(() -> new RuntimeException("Nie znaleziono pasażera o ID: " + dto.getPassengerId()));
+            pass.setPassenger(passenger);
+        }
     }
 }
