@@ -33,5 +33,6 @@ public class Passenger {
 	
 	@OneToMany(mappedBy = "passenger")
 	@Getter @Setter
+	@JsonIgnore 
 	private List<BoardingPass> boardingPasses;
 }
