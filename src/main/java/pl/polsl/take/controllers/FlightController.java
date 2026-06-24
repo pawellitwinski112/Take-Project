@@ -37,6 +37,13 @@ public class FlightController {
 
     @PostMapping
     public FlightDTO addFlight(@RequestBody FlightRequestDTO dto) {
+        // Złagodzony warunek: przepuszczamy, jeśli Swagger wygenerował null lub 0
+        if (dto.getId() != null && dto.getId() != 0) {
+            throw new IllegalArgumentException("Błąd: Podczas tworzenia lotu nie podawaj ID.");
+        }
+        
+        // Zabezpieczenie: siłowo ustawiamy null, by baza sama wygenerowała nowy klucz
+        dto.setId(null);
         if (dto.getId() != null) {
             throw new IllegalArgumentException("Błąd: Podczas tworzenia lotu nie podawaj ID.");
         }
