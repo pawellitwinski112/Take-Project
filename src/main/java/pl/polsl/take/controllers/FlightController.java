@@ -112,6 +112,14 @@ public class FlightController {
     public Long getFlightCountAnalysis(@RequestParam Long airlineId, @RequestParam Long airportId, 
     		@RequestParam @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) java.time.LocalDate start,
     		@RequestParam @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) java.time.LocalDate end) {
+        
+            // WALIDACJA: Sprawdzamy czy encje istnieją w słownikach
+        if (!airlineRepository.existsById(airlineId)) {
+            throw new RuntimeException("Błąd: Linia lotnicza o ID " + airlineId + " nie istnieje.");
+        }
+        if (!airportRepository.existsById(airportId)) {
+            throw new RuntimeException("Błąd: Lotnisko o ID " + airportId + " nie istnieje.");
+        }
     	if (start == null || end == null) {
             throw new IllegalArgumentException("Błąd: Parametry 'start' i 'end' są wymagane.");
         }
