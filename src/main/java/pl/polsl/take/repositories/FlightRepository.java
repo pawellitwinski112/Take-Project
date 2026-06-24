@@ -14,6 +14,12 @@ public interface FlightRepository extends CrudRepository<Flight, Long> {
     @jakarta.transaction.Transactional
     @org.springframework.data.jpa.repository.Modifying
     @Query("UPDATE Flight f SET f.departureTime = TIMESTAMPADD(MINUTE, :minutes, f.departureTime) WHERE f.departureAirport.id = :airportId")
+    @Query("""
+        UPDATE Flight f 
+        SET f.departureTime = TIMESTAMPADD(MINUTE, :minutes, f.departureTime), 
+            f.arrivalTime = TIMESTAMPADD(MINUTE, :minutes, f.arrivalTime) 
+        WHERE f.departureAirport.id = :airportId
+        """)
     int delayFlightsFromAirport(@Param("airportId") Long airportId, @Param("minutes") Integer minutes);
     
     @Query("SELECT COUNT(f) FROM Flight f WHERE f.airline.id = :airlineId AND f.departureAirport.id = :airportId AND f.departureTime BETWEEN :start AND :end")
