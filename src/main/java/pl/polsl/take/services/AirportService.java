@@ -39,6 +39,7 @@ public class AirportService {
         if (airport.getId() != null && airport.getId() != 0) {
             throw new IllegalArgumentException("Błąd: Podczas dodawania lotniska nie podawaj ID.");
         }
+        airport.setId(null);
         return airportRepository.save(airport);
     }
 
