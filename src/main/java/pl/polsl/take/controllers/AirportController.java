@@ -108,7 +108,9 @@ public class AirportController {
                 flightsDTO.add(new FlightDTO(f));
             }
         }
-        return CollectionModel.of(flightsDTO);
+        return CollectionModel.of(flightsDTO, org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo(
+                        org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn(AirportController.class).getDepartingFlights(id)
+                ).withSelfRel());
     }
 
     @GetMapping("/{id}/arrivals")
@@ -122,6 +124,10 @@ public class AirportController {
                 flightsDTO.add(new FlightDTO(f));
             }
         }
-        return CollectionModel.of(flightsDTO);
+      // POPRAWKA: Przekazujemy listę ORAZ link do samej siebie (z uwzględnieniem ID lotniska!)
+        return CollectionModel.of(flightsDTO,
+                org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo(
+                        org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn(AirportController.class).getArrivingFlights(id)
+                ).withSelfRel());
     }
 }
