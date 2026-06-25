@@ -85,11 +85,12 @@ public class BoardingPassController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteBoardingPass(@PathVariable Long id) {
-        if (!boardingPassRepository.existsById(id)) {
-            throw new RuntimeException("Błąd: Nie znaleziono karty pokładowej o ID " + id);
+    	try {
+    		boardingPassRepository.deleteById(id);
+    		return ResponseEntity.noContent().build();
+    	} catch (org.springframework.dao.EmptyResultDataAccessException | jakarta.persistence.EntityNotFoundException e) {
+            throw new RuntimeException("Błąd: Nie znaleziono lotu o ID " + id);
         }
-        boardingPassRepository.deleteById(id);
-        return ResponseEntity.noContent().build();
     }
     
     private void mapDtoToEntity(BoardingPassRequestDTO dto, BoardingPass pass) {

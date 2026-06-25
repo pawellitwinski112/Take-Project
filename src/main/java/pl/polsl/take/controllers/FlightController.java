@@ -99,11 +99,12 @@ public class FlightController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteFlight(@PathVariable Long id) {
-        if (!flightRepository.existsById(id)) {
+    	try {
+            flightRepository.deleteById(id);
+            return ResponseEntity.noContent().build();
+        } catch (org.springframework.dao.EmptyResultDataAccessException | jakarta.persistence.EntityNotFoundException e) {
             throw new RuntimeException("Błąd: Nie znaleziono lotu o ID " + id);
         }
-        flightRepository.deleteById(id);
-        return ResponseEntity.noContent().build();
     }
     
     @PutMapping("/delay")

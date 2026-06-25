@@ -62,13 +62,15 @@ public class AirplaneController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteAirplane(@PathVariable Long id) {
-        if (!airplaneRepository.existsById(id)) {
+    	try {
+            airplaneRepository.deleteById(id);
+            return ResponseEntity.noContent().build();
+        } catch (org.springframework.dao.DataIntegrityViolationException e) {
+            // Baza zablokuje, jeśli samolot ma przypisane loty
+            throw new IllegalStateException("Konflikt: Nie można usunąć samolotu, ponieważ bierze on udział w zaplanowanych lotach.");
+        } catch (org.springframework.dao.EmptyResultDataAccessException | jakarta.persistence.EntityNotFoundException e) {
+            // Jeśli samolotu nie ma w bazie
             throw new RuntimeException("Błąd: Nie znaleziono samolotu o ID " + id);
         }
-        if (flightRepository.existsByAirplaneId(id)) {
-            throw new IllegalStateException("Konflikt: Nie można usunąć samolotu, ponieważ bierze on udział w zaplanowanych lotach.");
-        }
-        airplaneRepository.deleteById(id);
-        return ResponseEntity.noContent().build();
     }
 }

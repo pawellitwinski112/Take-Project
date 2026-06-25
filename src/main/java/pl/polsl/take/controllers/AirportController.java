@@ -78,20 +78,16 @@ public class AirportController {
     // ==========================================
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteAirport(@PathVariable Long id) {
-        // Najpierw pobieramy lotnisko z bazy
-        Airport airport = airportRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Błąd: Nie znaleziono lotniska o ID " + id));
-
-        // Zabezpieczenie biznesowe: Sprawdzamy, czy są przypisane loty
-        boolean hasDepartures = airport.getDepartingFlights() != null && !airport.getDepartingFlights().isEmpty();
-        boolean hasArrivals = airport.getArrivingFlights() != null && !airport.getArrivingFlights().isEmpty();
-
-        if (hasDepartures || hasArrivals) {
+    	try {
+            airportRepository.deleteById(id);
+            return ResponseEntity.noContent().build();
+        } catch (org.springframework.dao.DataIntegrityViolationException e) {
+            // Baza danych zablokuje usunięcie, jeśli lotnisko ma przypisane loty (klucz obcy)
             throw new IllegalStateException("Konflikt: Nie można usunąć lotniska, ponieważ posiada zaplanowane loty.");
+        } catch (org.springframework.dao.EmptyResultDataAccessException | jakarta.persistence.EntityNotFoundException e) {
+            // Jeśli lotniska w ogóle nie ma w bazie
+            throw new RuntimeException("Błąd: Nie znaleziono lotniska o ID " + id);
         }
-
-        airportRepository.delete(airport);
-        return ResponseEntity.noContent().build();
     }
 
     // ==========================================

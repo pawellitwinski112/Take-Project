@@ -99,18 +99,17 @@ public class PassengerController {
     // ==========================================
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletePassenger(@PathVariable Long id) {
-        // Najpierw pobieramy pasażera z bazy
-        Passenger passenger = passengerRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Błąd: Nie znaleziono pasażera o ID " + id));
-
-        // Zabezpieczenie biznesowe: Sprawdzamy, czy pasażer posiada karty pokładowe
-        if (boardingPassRepository.existsByPassengerId(id)) {
+    	try {
+            // Próbujemy usunąć pasażera bezpośrednio po ID
+            passengerRepository.deleteById(id);
+            return ResponseEntity.noContent().build();
+        } catch (org.springframework.dao.DataIntegrityViolationException e) {
+            // Ten wyjątek leci, gdy pasażer ma karty pokładowe w bazie (klucz obcy blokuje usunięcie)
             throw new IllegalStateException("Konflikt: Nie można usunąć pasażera, ponieważ posiada przypisane karty pokładowe.");
+        } catch (org.springframework.dao.EmptyResultDataAccessException | jakarta.persistence.EntityNotFoundException e) {
+            // Ten wyjątek leci, gdy pasażera w ogóle nie ma w bazie
+            throw new RuntimeException("Błąd: Nie znaleziono pasażera o ID " + id);
         }
-
-        // Jeśli jest czysto - usuwamy
-        passengerRepository.delete(passenger);
-        return ResponseEntity.noContent().build();
     }
     
     @GetMapping("/manifest/{flightId}")
