@@ -1,88 +1,67 @@
 package pl.polsl.take.controllers;
 
+import org.springframework.hateoas.CollectionModel;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import pl.polsl.take.entities.Airline;
-import pl.polsl.take.repositories.AirlineRepository;
-import pl.polsl.take.repositories.FlightRepository;
 import pl.polsl.take.dto.AirlineDTO;
-import org.springframework.hateoas.CollectionModel;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
-import pl.polsl.take.exceptions.ResourceNotFoundException;
+import pl.polsl.take.entities.Airline;
+import pl.polsl.take.services.AirlineService;
+
+import java.util.List;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
 @RequestMapping("/airlines")
 public class AirlineController {
 
-    private final AirlineRepository airlineRepository;
-    private final FlightRepository flightRepository;
+    private final AirlineService airlineService;
 
-    public AirlineController(AirlineRepository airlineRepository, FlightRepository flightRepository) {
-        this.airlineRepository = airlineRepository;
-        this.flightRepository = flightRepository;
+    public AirlineController(AirlineService airlineService) {
+        this.airlineService = airlineService;
     }
 
     // ==========================================
     // C - CREATE (POST)
     // ==========================================
     @PostMapping
-    public Airline addAirline(@RequestBody Airline airline) {
-        if (airline.getId() != null && airline.getId() != 0) {
-            throw new IllegalArgumentException("Błąd: Podczas dodawania linii lotniczej nie podawaj ID.");
-        }
-        return airlineRepository.save(airline);
+    public ResponseEntity<AirlineDTO> addAirline(@RequestBody Airline airline) {
+        // Delegujemy do serwisu; zwracamy 201 Created z nowym zasobem w ciele
+        AirlineDTO created = airlineService.create(airline);
+        return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
     // ==========================================
-    // R - READ (GET) z HATEOAS
+    // R - READ (GET)
     // ==========================================
     @GetMapping
     public CollectionModel<AirlineDTO> getAllAirlines() {
-        java.util.List<AirlineDTO> airlines = StreamSupport
-                .stream(airlineRepository.findAll().spliterator(), false)
-                .map(AirlineDTO::new)
-                .collect(Collectors.toList());
-        return CollectionModel.of(airlines, 
-                org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo(
-                org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn(AirlineController.class).getAllAirlines()).withSelfRel()
-                );
+        List<AirlineDTO> airlines = airlineService.getAll();
+        // Link HATEOAS do samej kolekcji (self)
+        return CollectionModel.of(airlines, linkTo(methodOn(AirlineController.class).getAllAirlines()).withSelfRel());
     }
 
     @GetMapping("/{id}")
     public AirlineDTO getAirlineById(@PathVariable Long id) {
-        return airlineRepository.findById(id)
-                .map(AirlineDTO::new)
-                .orElseThrow(() -> new ResourceNotFoundException("Błąd: Nie znaleziono linii lotniczej o ID " + id));
+        return airlineService.getById(id);
     }
 
     // ==========================================
     // U - UPDATE (PUT)
     // ==========================================
     @PutMapping
-    public Airline updateAirline(@RequestBody Airline airline) {
-        if (airline.getId() == null) {
-            throw new IllegalArgumentException("Błąd: Aby zaktualizować linię lotniczą, musisz podać jej ID.");
-        }
-        if (!airlineRepository.existsById(airline.getId())) {
-            throw new ResourceNotFoundException("Błąd: Linia lotnicza o podanym ID nie istnieje.");
-        }
-        return airlineRepository.save(airline);
+    public AirlineDTO updateAirline(@RequestBody Airline airline) {
+        return airlineService.update(airline);
     }
 
     // ==========================================
     // D - DELETE (DELETE)
     // ==========================================
-   @DeleteMapping("/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteAirline(@PathVariable Long id) {
-        Airline airline = airlineRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Błąd: Nie znaleziono linii lotniczej o ID " + id));
-
-        if (flightRepository.existsByAirlineId(id)) {
-            throw new IllegalStateException("Konflikt: Nie można usunąć linii lotniczej, ponieważ obsługuje ona zaplanowane loty.");
-        }
-
-        airlineRepository.delete(airline);
+        airlineService.delete(id);
+        // jeśli program jest tutaj -> 204 No Content
         return ResponseEntity.noContent().build();
     }
-}	
+}
