@@ -86,10 +86,9 @@ public class BoardingPassController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteBoardingPass(@PathVariable Long id) {
-        if (!boardingPassRepository.existsById(id)) {
-            throw new RuntimeException("Błąd: Nie znaleziono karty pokładowej o ID " + id);
-        }
-        boardingPassRepository.deleteById(id);
+        BoardingPass pass = boardingPassRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Błąd: Nie znaleziono karty pokładowej o ID " + id));
+        boardingPassRepository.delete(pass);
         return ResponseEntity.noContent().build();
     }
     

@@ -97,12 +97,16 @@ public class FlightController {
         // Zapisujemy zaktualizowany obiekt
         return new FlightDTO(updatedFlight);
     }
-
+    // ==========================================
+    // D - DELETE (DELETE)
+    // ==========================================
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteFlight(@PathVariable Long id) {
-        if (!flightRepository.existsById(id)) {
-            throw new RuntimeException("Błąd: Nie znaleziono lotu o ID " + id);
-        }
+        public ResponseEntity<Void> deleteFlight(@PathVariable Long id) {
+            Flight flight = flightRepository.findById(id)
+                    .orElseThrow(() -> new ResourceNotFoundException("Błąd: Nie znaleziono lotu o ID " + id));
+
+        flightRepository.delete(flight);
+        return ResponseEntity.noContent().build();
     }
     
     @PutMapping("/delay")

@@ -60,11 +60,19 @@ public class AirplaneController {
         }
         return airplaneRepository.save(airplane);
     }
-
+    //==========================================
+    // D - DELETE (DELETE)
+    //==========================================
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteAirplane(@PathVariable Long id) {
-        if (!airplaneRepository.existsById(id)) {
-            throw new RuntimeException("Błąd: Nie znaleziono samolotu o ID " + id);
+        Airplane airplane = airplaneRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Błąd: Nie znaleziono samolotu o ID " + id));
+
+        if (flightRepository.existsByAirplaneId(id)) {
+            throw new IllegalStateException("Konflikt: Nie można usunąć samolotu, ponieważ bierze on udział w zaplanowanych lotach.");
         }
+
+        airplaneRepository.delete(airplane);
+        return ResponseEntity.noContent().build();
     }
 }
