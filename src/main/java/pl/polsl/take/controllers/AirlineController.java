@@ -75,17 +75,15 @@ public class AirlineController {
     // ==========================================
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteAirline(@PathVariable Long id) {
-        // Najpierw pobieramy linię lotniczą z bazy
-        Airline airline = airlineRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Błąd: Nie znaleziono linii lotniczej o ID " + id));
-
-        // Zabezpieczenie biznesowe: Sprawdzamy, czy linia obsługuje jakieś loty
-        if (flightRepository.existsByAirlineId(id)) {
+    	try {
+            airlineRepository.deleteById(id);
+            return ResponseEntity.noContent().build();
+        } catch (org.springframework.dao.DataIntegrityViolationException e) {
+            // Wyjątek z bazy, jeśli linia lotnicza ma przypisane jakiekolwiek loty
             throw new IllegalStateException("Konflikt: Nie można usunąć linii lotniczej, ponieważ obsługuje ona zaplanowane loty.");
+        } catch (org.springframework.dao.EmptyResultDataAccessException | jakarta.persistence.EntityNotFoundException e) {
+            // Wyjątek, jeśli linii o takim ID w ogóle nie ma w bazie
+            throw new RuntimeException("Błąd: Nie znaleziono linii lotniczej o ID " + id);
         }
-
-        // Jeśli jest czysto - usuwamy
-        airlineRepository.delete(airline);
-        return ResponseEntity.noContent().build();
     }
-}
+}	

@@ -101,10 +101,8 @@ public class FlightController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteFlight(@PathVariable Long id) {
         if (!flightRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Błąd: Nie znaleziono lotu o ID " + id);
+            throw new RuntimeException("Błąd: Nie znaleziono lotu o ID " + id);
         }
-        flightRepository.deleteById(id);
-        return ResponseEntity.noContent().build();
     }
     
     @PutMapping("/delay")
