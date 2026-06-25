@@ -51,5 +51,6 @@ public class Flight {
 	private List<BoardingPass> boardingPasses;
 	
 	@Version
+	@jakarta.persistence.Column(nullable = false, columnDefinition = "int default 0")
 	private Long version;
 }

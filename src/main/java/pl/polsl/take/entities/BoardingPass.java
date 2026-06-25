@@ -32,5 +32,6 @@ public class BoardingPass {
 	private Integer seat;
 	
 	@Version
+	@jakarta.persistence.Column(nullable = false, columnDefinition = "int default 0")
 	private Long version;
 }
