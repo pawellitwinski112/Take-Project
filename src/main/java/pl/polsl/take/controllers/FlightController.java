@@ -64,7 +64,10 @@ public class FlightController {
         for(Flight flight : flightRepository.findAll()) {
             flightsDTO.add(new FlightDTO(flight));
         }
-        return CollectionModel.of(flightsDTO);
+        return CollectionModel.of(flightsDTO, 
+                org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo(
+                org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn(FlightController.class).getAllFlights()).withSelfRel()
+                );
     }
 
     @GetMapping("/{id}")

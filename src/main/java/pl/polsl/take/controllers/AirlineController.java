@@ -42,7 +42,10 @@ public class AirlineController {
                 .stream(airlineRepository.findAll().spliterator(), false)
                 .map(AirlineDTO::new)
                 .collect(Collectors.toList());
-        return CollectionModel.of(airlines);
+        return CollectionModel.of(airlines, 
+                org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo(
+                org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn(AirlineController.class).getAllAirlines()).withSelfRel()
+                );
     }
 
     @GetMapping("/{id}")

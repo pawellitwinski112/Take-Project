@@ -39,7 +39,10 @@ public class AirplaneController {
                 .stream(airplaneRepository.findAll().spliterator(), false)
                 .map(AirplaneDTO::new)
                 .collect(Collectors.toList());
-        return CollectionModel.of(airplanes);
+        return CollectionModel.of(airplanes, 
+                org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo(
+                org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn(AirplaneController.class).getAllAirplanes()).withSelfRel()
+                );
     }
 
     @GetMapping("/{id}")

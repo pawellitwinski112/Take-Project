@@ -52,7 +52,10 @@ public class PassengerController {
                 .stream(passengerRepository.findAll().spliterator(), false)
                 .map(PassengerDTO::new)
                 .collect(Collectors.toList());
-        return CollectionModel.of(passengers);
+        return CollectionModel.of(passengers, 
+                org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo(
+                org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn(PassengerController.class).getAllPassengers()).withSelfRel()
+                );
     }
     // 2. Pobieranie konkretnego pasażera po ID (np. /passengers/1)
     @GetMapping("/{id}")

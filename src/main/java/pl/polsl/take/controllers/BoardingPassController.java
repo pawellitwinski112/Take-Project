@@ -51,7 +51,10 @@ public class BoardingPassController {
         for(BoardingPass pass : boardingPassRepository.findAll()) {
             passesDTO.add(new BoardingPassDTO(pass));
         }
-        return CollectionModel.of(passesDTO);
+        return CollectionModel.of(passesDTO, 
+                org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo(
+                org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn(BoardingPassController.class).getAllBoardingPasses()).withSelfRel()
+                );
     }
 
     @GetMapping("/{id}")

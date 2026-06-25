@@ -45,7 +45,10 @@ public class AirportController {
                 .map(AirportDTO::new)
                 .collect(java.util.stream.Collectors.toList());
                 
-        return CollectionModel.of(airports);
+        return CollectionModel.of(airports, 
+                org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo(
+                org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn(AirportController.class).getAllAirports()).withSelfRel()
+                );
     }
 
     // 2. Pobieranie konkretnego lotniska po ID (np. /airports/1)
