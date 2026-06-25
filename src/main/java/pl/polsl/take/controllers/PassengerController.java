@@ -14,6 +14,7 @@ import pl.polsl.take.dto.BoardingPassDTO;
 import org.springframework.hateoas.CollectionModel;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
+import pl.polsl.take.exceptions.ResourceNotFoundException;
 
 @RestController
 @RequestMapping("/passengers")
@@ -62,7 +63,7 @@ public class PassengerController {
     public PassengerDTO getPassengerById(@PathVariable Long id) {
             return passengerRepository.findById(id)
                     .map(PassengerDTO::new)
-                    .orElseThrow(() -> new RuntimeException("Błąd: Nie znaleziono pasażera o ID " + id));
+                    .orElseThrow(() -> new ResourceNotFoundException("Błąd: Nie znaleziono pasażera o ID " + id));
     }
     // ==========================================
     // METODA DOCIĄGAJĄCA KARTY POKŁADOWE PASAŻERA
@@ -70,7 +71,7 @@ public class PassengerController {
     @GetMapping("/{id}/boarding-passes")
     public org.springframework.hateoas.CollectionModel<pl.polsl.take.dto.BoardingPassDTO> getBoardingPassesForPassenger(@PathVariable Long id) {
         Passenger passenger = passengerRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Błąd: Nie znaleziono pasażera o ID " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Błąd: Nie znaleziono pasażera o ID " + id));
         
         java.util.List<pl.polsl.take.dto.BoardingPassDTO> passes = passenger.getBoardingPasses().stream()
                 .map(pl.polsl.take.dto.BoardingPassDTO::new)
@@ -87,7 +88,7 @@ public class PassengerController {
             throw new IllegalArgumentException("Błąd: Aby zaktualizować pasażera, musisz podać jego ID.");
         }
         Passenger passenger = passengerRepository.findById(dto.getId())
-                .orElseThrow(() -> new RuntimeException("Błąd: Pasażer o podanym ID nie istnieje."));
+                .orElseThrow(() -> new ResourceNotFoundException("Błąd: Pasażer o podanym ID nie istnieje."));
         
         mapDtoToEntity(dto, passenger);
         Passenger updatedPassenger = passengerRepository.save(passenger);
@@ -101,7 +102,7 @@ public class PassengerController {
     public ResponseEntity<Void> deletePassenger(@PathVariable Long id) {
         // Najpierw pobieramy pasażera z bazy
         Passenger passenger = passengerRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Błąd: Nie znaleziono pasażera o ID " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Błąd: Nie znaleziono pasażera o ID " + id));
 
         // Zabezpieczenie biznesowe: Sprawdzamy, czy pasażer posiada karty pokładowe
         if (boardingPassRepository.existsByPassengerId(id)) {

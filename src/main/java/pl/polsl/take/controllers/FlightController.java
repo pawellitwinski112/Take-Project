@@ -13,6 +13,7 @@ import pl.polsl.take.repositories.AirportRepository;
 import pl.polsl.take.repositories.FlightRepository;
 import pl.polsl.take.dto.FlightDTO;
 import pl.polsl.take.dto.FlightRequestDTO;
+import pl.polsl.take.exceptions.ResourceNotFoundException;
 
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.hateoas.CollectionModel;
@@ -73,7 +74,7 @@ public class FlightController {
     @GetMapping("/{id}")
     public FlightDTO getFlightById(@PathVariable Long id) {
         Flight flight = flightRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Błąd: Nie znaleziono lotu o ID " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Błąd: Nie znaleziono lotu o ID " + id));
         return new FlightDTO(flight);
     }
 
@@ -88,7 +89,7 @@ public class FlightController {
         }
         
         // Zabezpieczenie: Czy taki lot w ogóle istnieje w bazie?
-        Flight flight = flightRepository.findById(dto.getId()).orElseThrow(() -> new RuntimeException("Błąd: Lot o podanym ID nie istnieje."));
+        Flight flight = flightRepository.findById(dto.getId()).orElseThrow(() -> new ResourceNotFoundException("Błąd: Lot o podanym ID nie istnieje."));
 
         mapDtoToEntity(dto, flight);
         
@@ -100,7 +101,7 @@ public class FlightController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteFlight(@PathVariable Long id) {
         if (!flightRepository.existsById(id)) {
-            throw new RuntimeException("Błąd: Nie znaleziono lotu o ID " + id);
+            throw new ResourceNotFoundException("Błąd: Nie znaleziono lotu o ID " + id);
         }
         flightRepository.deleteById(id);
         return ResponseEntity.noContent().build();
@@ -113,7 +114,7 @@ public class FlightController {
         }
     	int updatedRows = flightRepository.delayFlightsFromAirport(airportId, minutes);
         if (updatedRows == 0) {
-            throw new RuntimeException("Błąd: Nie znaleziono lotów z lotniska o ID " + airportId + " lub lotnisko nie istnieje.");
+            throw new ResourceNotFoundException("Błąd: Nie znaleziono lotów z lotniska o ID " + airportId + " lub lotnisko nie istnieje.");
         }
     	return "Sukces: Opóźniono " + updatedRows + " lotów z lotniska o ID " + airportId + " o " + minutes + " minut.";
     }
@@ -125,10 +126,10 @@ public class FlightController {
         
             // WALIDACJA: Sprawdzamy czy encje istnieją w słownikach
         if (!airlineRepository.existsById(airlineId)) {
-            throw new RuntimeException("Błąd: Linia lotnicza o ID " + airlineId + " nie istnieje.");
+            throw new ResourceNotFoundException("Błąd: Linia lotnicza o ID " + airlineId + " nie istnieje.");
         }
         if (!airportRepository.existsById(airportId)) {
-            throw new RuntimeException("Błąd: Lotnisko o ID " + airportId + " nie istnieje.");
+            throw new ResourceNotFoundException("Błąd: Lotnisko o ID " + airportId + " nie istnieje.");
         }
     	if (start == null || end == null) {
             throw new IllegalArgumentException("Błąd: Parametry 'start' i 'end' są wymagane.");
@@ -147,25 +148,25 @@ public class FlightController {
 
         if (dto.getAirplaneId() != null) {
             Airplane airplane = airplaneRepository.findById(dto.getAirplaneId())
-                    .orElseThrow(() -> new RuntimeException("Nie znaleziono samolotu o ID: " + dto.getAirplaneId()));
+                    .orElseThrow(() -> new ResourceNotFoundException("Błąd: Nie znaleziono samolotu o ID: " + dto.getAirplaneId()));
             flight.setAirplane(airplane);
         }
 
         if (dto.getDepartureAirportId() != null) {
             Airport depAirport = airportRepository.findById(dto.getDepartureAirportId())
-                    .orElseThrow(() -> new RuntimeException("Nie znaleziono lotniska wylotu o ID: " + dto.getDepartureAirportId()));
+                    .orElseThrow(() -> new ResourceNotFoundException("Błąd: Nie znaleziono lotniska wylotu o ID: " + dto.getDepartureAirportId()));
             flight.setDepartureAirport(depAirport);
         }
 
         if (dto.getArrivalAirportId() != null) {
             Airport arrAirport = airportRepository.findById(dto.getArrivalAirportId())
-                    .orElseThrow(() -> new RuntimeException("Nie znaleziono lotniska przylotu o ID: " + dto.getArrivalAirportId()));
+                    .orElseThrow(() -> new ResourceNotFoundException("Błąd: Nie znaleziono lotniska przylotu o ID: " + dto.getArrivalAirportId()));
             flight.setArrivalAirport(arrAirport);
         }
 
         if (dto.getAirlineId() != null) {
             Airline airline = airlineRepository.findById(dto.getAirlineId())
-                    .orElseThrow(() -> new RuntimeException("Nie znaleziono linii lotniczej o ID: " + dto.getAirlineId()));
+                    .orElseThrow(() -> new ResourceNotFoundException("Błąd: Nie znaleziono linii lotniczej o ID: " + dto.getAirlineId()));
             flight.setAirline(airline);
         }
     }

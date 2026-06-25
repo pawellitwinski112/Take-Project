@@ -9,6 +9,7 @@ import pl.polsl.take.dto.AirlineDTO;
 import org.springframework.hateoas.CollectionModel;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
+import pl.polsl.take.exceptions.ResourceNotFoundException;
 
 @RestController
 @RequestMapping("/airlines")
@@ -52,7 +53,7 @@ public class AirlineController {
     public AirlineDTO getAirlineById(@PathVariable Long id) {
         return airlineRepository.findById(id)
                 .map(AirlineDTO::new)
-                .orElseThrow(() -> new RuntimeException("Błąd: Nie znaleziono linii lotniczej o ID " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Błąd: Nie znaleziono linii lotniczej o ID " + id));
     }
 
     // ==========================================
@@ -64,7 +65,7 @@ public class AirlineController {
             throw new IllegalArgumentException("Błąd: Aby zaktualizować linię lotniczą, musisz podać jej ID.");
         }
         if (!airlineRepository.existsById(airline.getId())) {
-            throw new RuntimeException("Błąd: Linia lotnicza o podanym ID nie istnieje.");
+            throw new ResourceNotFoundException("Błąd: Linia lotnicza o podanym ID nie istnieje.");
         }
         return airlineRepository.save(airline);
     }
@@ -76,7 +77,7 @@ public class AirlineController {
     public ResponseEntity<Void> deleteAirline(@PathVariable Long id) {
         // Najpierw pobieramy linię lotniczą z bazy
         Airline airline = airlineRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Błąd: Nie znaleziono linii lotniczej o ID " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Błąd: Nie znaleziono linii lotniczej o ID " + id));
 
         // Zabezpieczenie biznesowe: Sprawdzamy, czy linia obsługuje jakieś loty
         if (flightRepository.existsByAirlineId(id)) {

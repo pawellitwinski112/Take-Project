@@ -6,6 +6,8 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.dao.OptimisticLockingFailureException;
+import pl.polsl.take.exceptions.ResourceNotFoundException;
 
 import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
@@ -18,8 +20,8 @@ public class GlobalExceptionHandler {
     // 404 - Not Found
     // Gdy szukamy zasobu po ID i nie istnieje
     // ==========================================
-    @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<Map<String, Object>> handleNotFound(RuntimeException ex) {
+   @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<Map<String, Object>> handleNotFound(ResourceNotFoundException ex) {
         return buildResponse(HttpStatus.NOT_FOUND, ex.getMessage());
     }
 
@@ -85,5 +87,15 @@ public class GlobalExceptionHandler {
         body.put("error", status.getReasonPhrase());
         body.put("message", message);
         return new ResponseEntity<>(body, status);
+    }
+
+    // ==========================================
+    // 409 - Conflict (Wyścig współbieżny / Optimistic Locking)
+    // Gdy dwa wątki próbują zmodyfikować/usunąć ten sam zasób
+    // ==========================================
+    @ExceptionHandler(OptimisticLockingFailureException.class)
+    public ResponseEntity<Map<String, Object>> handleConcurrentModification(OptimisticLockingFailureException ex) {
+        return buildResponse(HttpStatus.CONFLICT, 
+                "Konflikt: Ktoś inny zmodyfikował lub usunął ten zasób w tym samym czasie. Odśwież dane i spróbuj ponownie.");
     }
 }

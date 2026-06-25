@@ -10,6 +10,7 @@ import pl.polsl.take.repositories.FlightRepository;
 import pl.polsl.take.repositories.PassengerRepository;
 import pl.polsl.take.dto.BoardingPassDTO;
 import pl.polsl.take.dto.BoardingPassRequestDTO;
+import pl.polsl.take.exceptions.ResourceNotFoundException;
 
 import org.springframework.hateoas.CollectionModel;
 import java.util.ArrayList;
@@ -60,7 +61,7 @@ public class BoardingPassController {
     @GetMapping("/{id}")
     public BoardingPassDTO getBoardingPassById(@PathVariable Long id) {
         BoardingPass pass = boardingPassRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Błąd: Nie znaleziono karty pokładowej o ID " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Błąd: Nie znaleziono karty pokładowej o ID " + id));
         return new BoardingPassDTO(pass);
     }
 
@@ -75,7 +76,7 @@ public class BoardingPassController {
         }
         
         BoardingPass pass = boardingPassRepository.findById(dto.getId())
-                .orElseThrow(() -> new RuntimeException("Błąd: Karta pokładowa o podanym ID nie istnieje."));
+                .orElseThrow(() -> new ResourceNotFoundException("Błąd: Karta pokładowa o podanym ID nie istnieje."));
         
         mapDtoToEntity(dto, pass);
         
@@ -86,7 +87,7 @@ public class BoardingPassController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteBoardingPass(@PathVariable Long id) {
         if (!boardingPassRepository.existsById(id)) {
-            throw new RuntimeException("Błąd: Nie znaleziono karty pokładowej o ID " + id);
+            throw new ResourceNotFoundException("Błąd: Nie znaleziono karty pokładowej o ID " + id);
         }
         boardingPassRepository.deleteById(id);
         return ResponseEntity.noContent().build();
@@ -98,13 +99,13 @@ public class BoardingPassController {
 
         if (dto.getFlightId() != null) {
             Flight flight = flightRepository.findById(dto.getFlightId())
-                    .orElseThrow(() -> new RuntimeException("Nie znaleziono lotu o ID: " + dto.getFlightId()));
+                    .orElseThrow(() -> new ResourceNotFoundException("Błąd: Nie znaleziono lotu o ID: " + dto.getFlightId()));
             pass.setFlight(flight);
         }
 
         if (dto.getPassengerId() != null) {
             Passenger passenger = passengerRepository.findById(dto.getPassengerId())
-                    .orElseThrow(() -> new RuntimeException("Nie znaleziono pasażera o ID: " + dto.getPassengerId()));
+                    .orElseThrow(() -> new ResourceNotFoundException("Błąd: Nie znaleziono pasażera o ID: " + dto.getPassengerId()));
             pass.setPassenger(passenger);
         }
     }

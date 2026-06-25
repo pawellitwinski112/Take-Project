@@ -9,6 +9,7 @@ import pl.polsl.take.dto.AirplaneDTO;
 import org.springframework.hateoas.CollectionModel;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
+import pl.polsl.take.exceptions.ResourceNotFoundException;
 
 @RestController
 @RequestMapping("/airplanes")
@@ -49,7 +50,7 @@ public class AirplaneController {
     public AirplaneDTO getAirplaneById(@PathVariable Long id) {
         return airplaneRepository.findById(id)
                 .map(AirplaneDTO::new)
-                .orElseThrow(() -> new RuntimeException("Błąd: Nie znaleziono samolotu o ID " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Błąd: Nie znaleziono samolotu o ID " + id));
     }
 
     @PutMapping
@@ -63,7 +64,7 @@ public class AirplaneController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteAirplane(@PathVariable Long id) {
         if (!airplaneRepository.existsById(id)) {
-            throw new RuntimeException("Błąd: Nie znaleziono samolotu o ID " + id);
+            throw new ResourceNotFoundException("Błąd: Nie znaleziono samolotu o ID " + id);
         }
         if (flightRepository.existsByAirplaneId(id)) {
             throw new IllegalStateException("Konflikt: Nie można usunąć samolotu, ponieważ bierze on udział w zaplanowanych lotach.");

@@ -11,6 +11,8 @@ import org.springframework.hateoas.CollectionModel;
 import pl.polsl.take.dto.AirportDTO;
 import java.util.ArrayList;
 import java.util.List;
+import pl.polsl.take.exceptions.ResourceNotFoundException;
+
 
 @RestController
 @RequestMapping("/airports")
@@ -56,7 +58,7 @@ public class AirportController {
     public AirportDTO getAirportById(@PathVariable Long id) {
         return airportRepository.findById(id)
                 .map(AirportDTO::new) 
-                .orElseThrow(() -> new RuntimeException("Błąd: Nie znaleziono lotniska o ID " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Błąd: Nie znaleziono lotniska o ID " + id));
     }
 
     // ==========================================
@@ -68,7 +70,7 @@ public class AirportController {
             throw new IllegalArgumentException("Błąd: Aby zaktualizować lotnisko, musisz podać jego ID.");
         }
         if (!airportRepository.existsById(airport.getId())) {
-            throw new RuntimeException("Błąd: Lotnisko o podanym ID nie istnieje.");
+            throw new ResourceNotFoundException("Błąd: Lotnisko o podanym ID nie istnieje.");
         }
         return airportRepository.save(airport);
     }
@@ -80,7 +82,7 @@ public class AirportController {
     public ResponseEntity<Void> deleteAirport(@PathVariable Long id) {
         // Najpierw pobieramy lotnisko z bazy
         Airport airport = airportRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Błąd: Nie znaleziono lotniska o ID " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Błąd: Nie znaleziono lotniska o ID " + id));
 
         // Zabezpieczenie biznesowe: Sprawdzamy, czy są przypisane loty
         boolean hasDepartures = airport.getDepartingFlights() != null && !airport.getDepartingFlights().isEmpty();
@@ -100,7 +102,7 @@ public class AirportController {
     @GetMapping("/{id}/departures")
     public CollectionModel<FlightDTO> getDepartingFlights(@PathVariable Long id) {
         Airport airport = airportRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Błąd: Nie znaleziono lotniska o ID " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Błąd: Nie znaleziono lotniska o ID " + id));
         
         List<FlightDTO> flightsDTO = new ArrayList<>();
         if(airport.getDepartingFlights() != null) {
@@ -116,7 +118,7 @@ public class AirportController {
     @GetMapping("/{id}/arrivals")
     public CollectionModel<FlightDTO> getArrivingFlights(@PathVariable Long id) {
         Airport airport = airportRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Błąd: Nie znaleziono lotniska o ID " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Błąd: Nie znaleziono lotniska o ID " + id));
         
         List<FlightDTO> flightsDTO = new ArrayList<>();
         if(airport.getArrivingFlights() != null) {
