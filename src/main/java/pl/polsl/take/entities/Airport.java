@@ -38,6 +38,7 @@ public class Airport {
 	private List<Flight> arrivingFlights;
 	
 	@Version
+	@JsonIgnore
 	@jakarta.persistence.Column(nullable = false, columnDefinition = "int default 0")
 	private Long version;
 }

@@ -39,5 +39,5 @@ public class Airplane {
 	
 	@Version
 	@jakarta.persistence.Column(nullable = false, columnDefinition = "int default 0")
-	private Long version;
+	private Long version = 0L;
 }

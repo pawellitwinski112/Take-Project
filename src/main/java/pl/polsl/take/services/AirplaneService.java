@@ -47,7 +47,19 @@ public class AirplaneService {
         if (airplane.getId() == null || !airplaneRepository.existsById(airplane.getId())) {
             throw new IllegalArgumentException("Błąd: Aby zaktualizować samolot, podaj poprawne ID.");
         }
-        return airplaneRepository.save(airplane);
+        
+        Airplane originalAirplane = airplaneRepository.findById(airplane.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Błąd: Samolot o podanym ID nie istnieje."));
+        
+        originalAirplane.setSeats(airplane.getSeats());
+        originalAirplane.setProducent(airplane.getProducent());
+        originalAirplane.setModel(airplane.getModel());
+        originalAirplane.setMaxRange(airplane.getMaxRange());
+        originalAirplane.setProductionDate(airplane.getProductionDate());
+        originalAirplane.setRegistration(airplane.getRegistration());
+
+        Airplane updated = airplaneRepository.save(originalAirplane);
+        return airplaneRepository.save(updated);
     }
 
     public void delete(Long id) {

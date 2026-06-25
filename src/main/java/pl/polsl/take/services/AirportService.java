@@ -47,10 +47,14 @@ public class AirportService {
         if (airport.getId() == null) {
             throw new IllegalArgumentException("Błąd: Aby zaktualizować lotnisko, musisz podać jego ID.");
         }
-        if (!airportRepository.existsById(airport.getId())) {
-            throw new ResourceNotFoundException("Błąd: Lotnisko o podanym ID nie istnieje.");
-        }
-        return airportRepository.save(airport);
+        Airport originalAirport = airportRepository.findById(airport.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Błąd: Lotnisko o podanym ID nie istnieje."));
+        
+        originalAirport.setIcaoCode(airport.getIcaoCode());
+        originalAirport.setAirportName(airport.getAirportName());
+        originalAirport.setCountry(airport.getCountry());
+        originalAirport.setCity(airport.getCity());
+        return airportRepository.save(originalAirport);
     }
 
     public void delete(Long id) {

@@ -66,11 +66,14 @@ public class AirlineService {
         if (airline.getId() == null) {
             throw new IllegalArgumentException("Błąd: Aby zaktualizować linię lotniczą, musisz podać jej ID.");
         }
-        // Reguła biznesowa: zasób o tym ID musi istnieć
-        if (!airlineRepository.existsById(airline.getId())) {
-            throw new ResourceNotFoundException("Błąd: Linia lotnicza o podanym ID nie istnieje.");
-        }
-        Airline updated = airlineRepository.save(airline);
+        
+        Airline originalAirline = airlineRepository.findById(airline.getId())
+        		.orElseThrow(() -> new ResourceNotFoundException("Błąd: Linia lotnicza o podanym ID nie istnieje."));
+        originalAirline.setName(airline.getName());
+        originalAirline.setIcaoName(airline.getIcaoName());
+        originalAirline.setHelpdeskNumber(airline.getHelpdeskNumber());
+        
+        Airline updated = airlineRepository.save(originalAirline);
         return new AirlineDTO(updated);
     }
 
