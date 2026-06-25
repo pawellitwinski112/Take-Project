@@ -49,4 +49,7 @@ public class Flight {
 	
 	@OneToMany(mappedBy = "flight", cascade = CascadeType.REMOVE, orphanRemoval = true)
 	private List<BoardingPass> boardingPasses;
+	
+	@Version
+	private Long version;
 }

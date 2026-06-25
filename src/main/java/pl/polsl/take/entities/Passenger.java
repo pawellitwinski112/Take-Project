@@ -35,4 +35,7 @@ public class Passenger {
 	@Getter @Setter
 	@JsonIgnore 
 	private List<BoardingPass> boardingPasses;
+	
+	@Version
+	private Long version;
 }

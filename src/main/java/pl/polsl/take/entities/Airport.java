@@ -36,5 +36,8 @@ public class Airport {
 	@OneToMany(mappedBy = "arrivalAirport")
 	@JsonIgnore
 	private List<Flight> arrivingFlights;
+	
+	@Version
+	private Long version;
 }
 

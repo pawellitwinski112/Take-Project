@@ -36,4 +36,7 @@ public class Airplane {
 	
 	@Getter @Setter
 	private String registration;
+	
+	@Version
+	private Long version;
 }

@@ -24,4 +24,7 @@ public class Airline {
 	@Column(name = "helpdesk_number", nullable = true)
 	@Getter @Setter
 	private Integer helpdeskNumber;
+	
+	@Version
+	private Long version;
 }

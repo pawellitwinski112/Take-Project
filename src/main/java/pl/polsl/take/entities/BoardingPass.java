@@ -30,4 +30,7 @@ public class BoardingPass {
 	
 	@Getter @Setter
 	private Integer seat;
+	
+	@Version
+	private Long version;
 }

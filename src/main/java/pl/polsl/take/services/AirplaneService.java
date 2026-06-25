@@ -39,6 +39,7 @@ public class AirplaneService {
         if (airplane.getId() != null && airplane.getId() != 0) {
             throw new IllegalArgumentException("Błąd: Podczas dodawania samolotu nie podawaj ID.");
         }
+        airplane.setId(null);
         return airplaneRepository.save(airplane);
     }
 
