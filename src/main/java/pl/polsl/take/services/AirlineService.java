@@ -35,6 +35,7 @@ public class AirlineService {
         if (airline.getId() != null && airline.getId() != 0) {
             throw new IllegalArgumentException("Błąd: Podczas dodawania linii lotniczej nie podawaj ID.");
         }
+        airline.setId(null);
         Airline saved = airlineRepository.save(airline);
         return new AirlineDTO(saved);
     }

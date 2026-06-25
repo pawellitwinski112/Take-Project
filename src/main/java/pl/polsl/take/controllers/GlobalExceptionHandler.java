@@ -90,7 +90,7 @@ public class GlobalExceptionHandler {
     }
 
     // ==========================================
-    // 409 - Conflict (Wyścig współbieżny / Optimistic Locking)
+    // 409 - Konflikt (Wyścig współbieżny / Optimistic Locking)
     // Gdy dwa wątki próbują zmodyfikować/usunąć ten sam zasób
     // ==========================================
     @ExceptionHandler(OptimisticLockingFailureException.class)
