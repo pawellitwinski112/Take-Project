@@ -24,4 +24,8 @@ public class Airline {
 	@Column(name = "helpdesk_number", nullable = true)
 	@Getter @Setter
 	private Integer helpdeskNumber;
+	
+	@Version
+	@jakarta.persistence.Column(nullable = false, columnDefinition = "int default 0")
+	private Long version = 0L;
 }

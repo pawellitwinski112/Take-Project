@@ -3,6 +3,8 @@ package pl.polsl.take.entities;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -45,6 +47,10 @@ public class Flight {
 	@Getter @Setter
 	private Airline airline;
 	
-	@OneToMany(mappedBy = "flight")
+	@OneToMany(mappedBy = "flight", cascade = CascadeType.REMOVE, orphanRemoval = true)
 	private List<BoardingPass> boardingPasses;
+	
+	@Version
+	@jakarta.persistence.Column(nullable = false, columnDefinition = "int default 0")
+	private Long version;
 }

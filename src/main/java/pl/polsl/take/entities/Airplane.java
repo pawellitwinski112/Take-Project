@@ -36,4 +36,8 @@ public class Airplane {
 	
 	@Getter @Setter
 	private String registration;
+	
+	@Version
+	@jakarta.persistence.Column(nullable = false, columnDefinition = "int default 0")
+	private Long version = 0L;
 }
